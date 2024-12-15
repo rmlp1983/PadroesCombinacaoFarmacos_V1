@@ -1,0 +1,47 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from google.colab import files
+
+# Upload do ficheiro
+uploaded = files.upload()
+
+# Aceder ao conteúdo do ficheiro
+import io
+file_content = uploaded['diabetic_data.csv']
+file_stream = io.BytesIO(file_content)
+
+# Carregar o ficheiro CSV
+df = pd.read_csv(file_stream)
+
+# Misturar os dados
+df = df.sample(frac=1, random_state=42).reset_index(drop=True)
+
+# Dividir 20% dos dados para treino
+df_train, df_remaining = train_test_split(df, test_size=0.8, random_state=42)
+
+# Função para criar subconjuntos de teste independentes
+def create_test_subset(df, percentage, random_state=42):
+    test_size = int(percentage * len(df))
+    return df.sample(n=test_size, random_state=random_state)
+
+# Criar subconjuntos independentes dos dados restantes
+df_test_10 = create_test_subset(df_remaining, 0.1)
+df_test_20 = create_test_subset(df_remaining, 0.2)
+df_test_30 = create_test_subset(df_remaining, 0.3)
+df_test_40 = create_test_subset(df_remaining, 0.4)
+
+# Guardar os ficheiros CSV finais
+df_train.to_csv('train_20.csv', index=False)
+df_test_10.to_csv('test_10.csv', index=False)
+df_test_20.to_csv('test_20.csv', index=False)
+df_test_30.to_csv('test_30.csv', index=False)
+df_test_40.to_csv('test_40.csv', index=False)
+
+print("Divisão concluída e ficheiros gravados.")
+
+# Fazer download dos ficheiros um de cada vez
+files.download('train_20.csv')
+files.download('test_10.csv')
+files.download('test_20.csv')
+files.download('test_30.csv')
+files.download('test_40.csv')
